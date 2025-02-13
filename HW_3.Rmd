@@ -1,0 +1,367 @@
+---
+title: "**Homework 3**"
+author: 
+- "**Name:** Sofia Vaquera"
+- "**UT EID:** sv27974"
+- "**Github:** https://github.com/svaquera/HW-3"
+output: pdf_document
+---
+
+* Please note: This analysis uses a seed to ensure that results are reproducible.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Loads the tidyverse and mosaic libraries
+library(tidyverse)
+library(mosaic)
+
+```
+
+# Problem 1: Gas Prices
+
+```{r, echo = FALSE, message = FALSE}
+
+# Imports gasprices dataset for Problem 1
+gasprices = read.csv("gasprices.csv")
+
+```
+
+## Theory A) Gas Stations Charge More if They Lack Direct Competition in Sight
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+# Creates and displays the distribution of the difference in mean gas prices by whether there is direct competition in sight from 10000 bootstrapped samples 
+boot_gasprices_competitiors = do(10000) * diffmean(Price ~ Competitors, data = resample(gasprices))
+ggplot(boot_gasprices_competitiors) + geom_histogram(aes(x = diffmean), color = "black") +
+      labs(x = "Diffmean",
+          y = "Count",
+          title = "Distribution of Difference in Means Between Gas Stations With and\nWithout Direct Competition in Sight From Bootstrapped Samples")
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_gasprices_competitiors, level = 0.95)
+
+```
+
+Theory A states that gas stations charge more if they lack direct competition in sight. To investigate this, 10000 bootstrapped samples were taken from the `gasprices` dataset. For each bootstrapped sample, the difference in mean gas prices by whether the gas station has direct competition in sight was calculated. The distribution of these differences, `diffmean`, is shown in the histogram above. By calculating the 95% confidence interval (seen above), it can be said with 95% confidence that the average difference in price between gas stations with direct competition in sight and gas stations without direct competition in sight is somewhere between -0.055 and 0.008 dollars. Because the 95% confidence interval contains zero, it can be said that the relationship between gas prices and whether or not there is direct competition in sight is not statistically significant at the 5% level. This means that gas stations without direct competition may or may not charge more for gas, as some of the values in the confidence interval are negative while others are positive. For these reasons, the theory that gas stations charge more if they lack direct competition in sight is unsupported by the data.
+
+
+## Theory B) The Richer the Area, the Higher the Gas Prices
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+# Creates and finds the confidence interval of the relationship between gas price and median income for that zip code for 10000 bootstrapped samples
+boot_gasprices_income = do(10000) * lm(Price ~ Income, data = resample(gasprices))
+confint(boot_gasprices_income, level = 0.95) |>
+  filter(name == "Income")
+
+
+```
+
+Theory B states that richer an area is, the more expensive gas will be. To investigate this, 10000 bootstrapped samples were taken from the `gasprices` dataset. For each bootstrapped sample, a linear regression model was created to show the relationship between gas prices and the median household income for that given zip code. By calculating the 95% confidence interval (seen above), it can be said with 95% confidence that as median household income in a zip code increases by 1 dollar, gas prices increase by between 6.492e-07	and 1.775e-06 dollars. These numbers may be scaled to find a more clear relationship. For instance, by scaling these values by 10000, the statement becomes: it can be said with 95% confidence that as median household income in a zip code increases by 10000 dollars, gas prices increase by between 0.0065 and 0.0177 dollars. For these reasons, the theory that the richer an area is, the higher the gas prices are, is supported by the data. However, it's worth noting that this increase, while statistically significant at the 5% level, is still relatively small and thus may go largely unnoticed by most.
+
+
+## Theory C) Gas Stations at Stoplights Charge More
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+# Creates and displays the distribution of the difference in mean gas prices by whether the gas station is at a stoplight from 10000 bootstrapped samples 
+boot_gasprices_stoplight = do(10000) * diffmean(Price ~ Stoplight, data = resample(gasprices))
+ggplot(boot_gasprices_stoplight) + geom_histogram(aes(x = diffmean), color = "black") +
+      labs(x = "Diffmean",
+          y = "Count",
+          title = "Distribution of Difference in Means Between Gas Stations that Are and\nAre Not at Stoplights From Bootstrapped Samples")
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_gasprices_stoplight, level = 0.95)
+
+```
+
+
+Theory C states that gas stations at stoplights charge more. To investigate this, 10000 bootstrapped samples were taken from the `gasprices` dataset. For each bootstrapped sample, the difference in mean gas prices by whether the gas station was at a stoplight was calculated. The distribution of these differences, `diffmean`, is shown in the histogram above. By calculating the 95% confidence interval (seen above), it can be said with 95% confidence that the average difference in price between gas stations at stoplights and gas stations not as stoplights is somewhere between -0.0383 and 0.0296 dollars. Because the 95% confidence interval contains zero, it can be said that the relationship between gas prices and whether or not the gas station is at a stoplight is not statistically significant at the 5% level. This means that gas stations at stoplights may or may not charge more for gas, as some of the values in the confidence interval are negative while others are positive. For these reasons, the theory that gas stations charge more if they're at a stoplight is unsupported by the data.
+
+## Theory D) Gas Stations With Direct Highway Access Charge More
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+# Creates and displays the distribution of the difference in mean gas prices by whether the gas station has direct highway access from 10000 bootstrapped samples 
+boot_gasprices_highway = do(10000) * diffmean(Price ~ Highway, data = resample(gasprices))
+ggplot(boot_gasprices_highway) + geom_histogram(aes(x = diffmean), color = "black") +
+      labs(x = "Diffmean",
+          y = "Count",
+          title = "Distribution of Difference in Means Between Gas Stations That Do and\nDo Not Have Direct Highway Access From Bootstrapped Samples")
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_gasprices_highway, level = 0.95)
+
+```
+
+Theory D states that gas stations with direct highway access charge more. To investigate this, 10000 bootstrapped samples were taken from the `gasprices` dataset. For each bootstrapped sample, the difference in mean gas prices by whether the gas station had direct highway access was calculated. The distribution of these differences, `diffmean`, is shown in the histogram above. By calculating the 95% confidence interval (seen above), it can be said with 95% confidence that the average difference in price between gas stations that have direct highway access and gas stations that do not have direct highway access is somewhere between 0.009 and 0.082 dollars. Because the 95% confidence interval does not contain zero, it can be said that the relationship between gas prices and whether or not the gas station has direct highway access is statistically significant at the 5% level. This means that it can be said with 95% confidence that, on average, gas stations with direct highway access charge between 0.009 and 0.082 dollars more. For these reasons, the theory that gas stations with direct highway access charge more is supported by the data.
+
+## Theory E) Shell Charges More Than All Other Non-Shell Brands
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+# Creates variable, isShell, and assigns value based on whether or not gas station is Shell brand
+gasprices_shell = gasprices |>
+  mutate(isShell = ifelse(Name == "Shell", yes = "shell", no = "notShell"))
+
+
+# Creates and displays the distribution of the difference in mean gas prices by whether the gas station is Shell brand from 10000 bootstrapped samples 
+boot_gasprices_shell = do(10000) * diffmean(Price ~ isShell, data = resample(gasprices_shell))
+ggplot(boot_gasprices_shell) + geom_histogram(aes(x = diffmean), color = "black") +
+      labs(x = "Diffmean",
+          y = "Count",
+          title = "Distribution of Difference in Means Between Shell Gas Stations and\nNon-Shell Gas Stations From Bootstrapped Samples")
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_gasprices_shell, level = 0.95)
+
+```
+
+
+Theory E states that Shell charges more than all other non-Shell brands. To investigate this, 10000 bootstrapped samples were taken from the `gasprices` dataset. For each bootstrapped sample, the difference in mean gas prices by whether the gas station was Shell brand was calculated. The distribution of these differences, `diffmean`, is shown in the histogram above. By calculating the 95% confidence interval (seen above), it can be said with 95% confidence that the average difference in price between Shell brand gas stations and non-Shell brand gas stations is somewhere between -0.0097 and 0.0651 dollars. Because the 95% confidence interval contains zero, it can be said that the relationship between gas prices and whether or not the gas station is Shell brand is not statistically significant at the 5% level. This means that Shell brand gas stations may or may not charge more for gas, as some of the values in the confidence interval are negative while others are positive. For these reasons, the theory that Shell charges more than all other non-Shell brands is unsupported by the data.
+
+
+# Problem 2: S-Class Vehicles
+
+```{r, echo = FALSE, message = FALSE}
+
+# Imports sclass dataset for Problem 2
+sclass = read.csv("sclass.csv")
+
+```
+
+## Part A) Mean Mileage of 2011 S-Class 63 AMGs
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+# Creates new dataset, sclass_2011, that only contains S-Class vehicles from 2011 with 63 AMG trims
+sclass_2011 = sclass |>
+  filter(year == 2011 & trim == "63 AMG")
+
+
+# Creates and displays the distribution of the means for the mileage of 2011 S-Class 63 AMGs from 10000 bootstrapped samples 
+boot_sclass_2011 = do(10000) * mean(~mileage, data = resample(sclass_2011))
+ggplot(boot_sclass_2011) + geom_histogram(aes(x = mean), color = "black") +
+      labs(x = "Mean",
+          y = "Count",
+          title = "Distribution of Means for Mileage of \n2011 S-Class 63 AMGs From Bootstrapped Samples")
+
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_sclass_2011, level = 0.95)
+
+```
+
+
+The distribution of the means for the mileage of 2011 S-Class 63 AMGs, `mean`, is shown in the histogram above. By calculating the 95% confidence interval (seen above), it can be said with 95% confidence that the average mileage of 2011 S-Class 63 AMGs is somewhere between 26221.45 and 31793.02. 
+
+
+## Part B) Proportion of Black 2014 S-Class 550s
+
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+# Creates new dataset, sclass_2014, that only contains S-Class vehicles from 2014 with 550 trims and creates a new variable, isBlack, that states whether or not a car is black
+sclass_2014 = sclass |>
+  filter(year == 2014 & trim == "550") |>
+  mutate(isBlack = ifelse(color == "Black", yes = TRUE, no = FALSE))
+
+
+# Creates and displays the distribution of the proportion of 2014 S-Class 550s that are black from 10000 bootstrapped samples 
+boot_sclass_2014 = do(10000) * prop(~isBlack, data = resample(sclass_2014))
+ggplot(boot_sclass_2014) + geom_histogram(aes(x = prop_TRUE), color = "black") +
+      labs(x = "Proportion of Black 2014 S-Class 550s",
+          y = "Count",
+          title = "Distribution of Proportions of 2014 S-Class 550s \nThat Are Black From Bootstrapped Samples")
+
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_sclass_2014, level = 0.95)
+
+
+```
+
+The distribution of the proportions of black 2014 S-Class 550s, `prop_TRUE`, is shown in the histogram above. By calculating the 95% confidence interval (seen above), it can be said with 95% confidence that the average proportion of 2014 S-Class 550s that are black is somewhere between 0.4171 (41.71%) and 0.4531 (45.31%). 
+
+
+# Problem 3: NBC Pilot Survey
+
+```{r, echo = FALSE, message = FALSE}
+
+# Imports nbc_pilotsurvey dataset for Problem 3
+nbc_pilotsurvey = read.csv("nbc_pilotsurvey.csv")
+
+```
+
+## Part A) "Living with Ed" vs "My Name is Earl" Happiness Ratings
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+
+# Creates new dataset, nbc_pilotsurvey_partA, that contains only shows "Living With Ed" and "My Name is Earl"
+nbc_pilotsurvey_partA = nbc_pilotsurvey |>
+  filter(Show == "Living with Ed" | Show == "My Name is Earl")
+
+
+
+# Creates and displays the distribution of the differences in mean happiness rating by show from 10000 bootstrapped samples 
+boot_nbc_partA = do(10000) * diffmean(Q1_Happy ~ Show, data = resample(nbc_pilotsurvey_partA))
+ggplot(boot_nbc_partA) + geom_histogram(aes(x = diffmean), color = "black") +
+      labs(x = "Diffmean",
+          y = "Count",
+          title = 'Distribution of Difference in Mean Happiness Ratings Between Shows \n"Living with Ed" and "My Name is Earl" From Bootstrapped Samples')
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_nbc_partA, level = 0.95)
+
+```
+
+**The question** I am trying to answer is the following: what is the difference in mean viewer response to the Q1_Happy question ("This show made me feel happy") for shows *Living With Ed* and *My Name is Earl*, and does one show consistently produce a higher mean Q1_Happy response among viewers? 
+
+**The approach** that I used to answer this question is the bootstrap method. I restricted the original `nbc_pilotsurvey` dataset to only include *Living With Ed* and *My Name is Earl* and stored the results in a new dataset, `nbc_pilotsurvey_partA`. From there, I created 10000 bootstrapped samples, with the difference in the mean happiness rating by show calculated for each sample. I then plotted these 10000 samples in the histogram seen above and calculated the 95% confidence interval (also seen above).
+
+**The results** that came out of my approach were the histogram and the 95% confidence interval. The histogram allows for the distribution of the `diffmean` from the 10000 bootstrapped samples to be visualized, while the confidence interval provides us with a crucial range of values. Namely, the confidence interval allows us to say with 95% confidence that the average difference in viewer response to the Q1_Happy question for shows *Living With Ed* and *My Name is Earl* is somewhere between -0.3912 and 0.0993.
+
+**The conclusion** that can be drawn from this information is that one show does not consistently produce a higher mean happiness rating from viewers. Because the 95% confidence interval includes both positive and negative values, neither of the two shows consistently produce higher mean Q1_Happy responses among viewers.
+
+
+
+## Part B) "The Biggest Loser" and "The Apprentice: Los Angeles" Annoyance Ratings
+
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+
+# Creates new dataset, nbc_pilotsurvey_partB, that contains only shows "The Biggest Loser" and "The Apprentice: Los Angeles"
+nbc_pilotsurvey_partB = nbc_pilotsurvey |>
+  filter(Show == "The Biggest Loser" | Show == "The Apprentice: Los Angeles")
+
+
+# Creates and displays the distribution of the differences in mean annoyance rating by show from 10000 bootstrapped samples
+boot_nbc_partB = do(10000) * diffmean(Q1_Annoyed ~ Show, data = resample(nbc_pilotsurvey_partB))
+ggplot(boot_nbc_partB) + geom_histogram(aes(x = diffmean), color = "black") +
+      labs(x = "Diffmean",
+          y = "Count",
+          title = 'Distribution of Difference in Mean Annoyance Ratings Between Shows \n"The Biggest Loser" and "The Apprentice: Los Angeles" From \nBootstrapped Samples')
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_nbc_partB, level = 0.95)
+```
+
+
+**The question** I am trying to answer is the following: what is the difference in mean viewer response to the Q1_Annoyed question ("This show made me feel annoyed") for shows *The Biggest Loser* and *The Apprentice: Los Angeles*, and does one show consistently produce a higher mean Q1_Annoyed response among viewers? 
+
+**The approach** that I used to answer this question is the bootstrap method. I restricted the original `nbc_pilotsurvey` dataset to only include *The Biggest Loser* and *The Apprentice: Los Angeles* and stored the results in a new dataset, `nbc_pilotsurvey_partB`. From there, I created 10000 bootstrapped samples, with the difference in the mean annoyance rating by show calculated for each sample. I then plotted these 10000 samples in the histogram seen above and calculated the 95% confidence interval (also seen above).
+
+**The results** that came out of my approach were the histogram and the 95% confidence interval. The histogram allows for the distribution of the `diffmean` from the 10000 bootstrapped samples to be visualized, while the confidence interval provides us with a crucial range of values. Namely, the confidence interval allows us to say with 95% confidence that the average difference in viewer response to the Q1_Annoyed question for shows *The Biggest Loser* and *The Apprentice: Los Angeles* is somewhere between -0.5245 and -0.0160.
+
+**The conclusion** that can be drawn from this information is that one show, *The Apprentice: Los Angeles*, appears to consistently produce a higher mean annoyance rating from viewers. Because the 95% confidence interval includes only a range of negative values, *The Apprentice: Los Angeles* consistently produces a higher mean Q1_Annoyed responses among viewers.
+
+
+
+## Part C) "Dancing with the Stars" Confusion Ratings
+
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+
+# Creates new dataset, nbc_pilotsurvey_partC, that contains only the show "Dancing with the Stars" and creates new variable, isConfusing, indicating whether the Q2_Confusing response is greater than or equal to 4
+nbc_pilotsurvey_partC = nbc_pilotsurvey |>
+  filter(Show == "Dancing with the Stars") |>
+  mutate(isConfusing = ifelse(Q2_Confusing >= 4, yes = TRUE, no = FALSE))
+
+# Creates and displays the distribution of the proportion of participants who found the show confusing (rating of 4 or above) from 10000 bootstrapped samples 
+boot_nbc_partC = do(10000) * prop(~isConfusing, data = resample(nbc_pilotsurvey_partC))
+ggplot(boot_nbc_partC) + geom_histogram(aes(x = prop_TRUE), color = "black") +
+      labs(x = 'Proportion of Viewers Who Found "Dancing with the Stars" \nConfusing (Q2_Confusing Response >= 4)',
+          y = "Count",
+          title = 'Distribution of Proportions of Viewers Who Found "Dancing with the Stars" \nConfusing From Bootstrapped Samples')
+
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_nbc_partC, level = 0.95)
+
+```
+
+
+
+**The question** I am trying to answer is the following: based on this sample of respondents, what proportion of American TV watchers would we expect to give a response of 4 or greater to the Q2_Confusing question ("I found this show confusing")? 
+
+**The approach** that I used to answer this question is the bootstrap method. I restricted the original `nbc_pilotsurvey` dataset to only include *Dancing with the Stars*, created a variable indicating whether the response to Q2_Confusing was greater than or equal to 4, and stored the results in a new dataset, `nbc_pilotsurvey_partC`. From there, I created 10000 bootstrapped samples, with the proportion of people who found the show confusing (responded with a rating of at least 4 to the Q2_Confusing question) calculated for each sample. I then plotted these 10000 samples in the histogram seen above and calculated the 95% confidence interval (also seen above).
+
+**The results** that came out of my approach were the histogram and the 95% confidence interval. The histogram allows for the distribution of the `prop_TRUE` from the 10000 bootstrapped samples to be visualized, while the confidence interval provides us with a crucial range of values. Namely, the confidence interval allows us to say with 95% confidence that the average proportion of American TV watchers we would expect to give a response of 4 or greater to the Q2_Confusing question for *Dancing with the Stars* is somewhere between 0.0387 (3.87%) and 0.1160 (11.60%).
+
+**The conclusion** that can be drawn from this information is that we're 95% confident that we could expect that anywhere from 3.87% to 11.60% of American TV watchers would either agree or strongly agree that *Dancing with the Stars* is confusing, as evidenced by a response of 4 or above to the Q2_Confusing question.
+
+
+# Problem 4: eBay
+
+```{r, echo = FALSE, message = FALSE}
+
+# Imports ebay dataset for Problem 4
+ebay = read.csv("ebay.csv")
+
+```
+
+```{r, echo = FALSE, message = FALSE}
+
+# Sets seed to ensure reproducibility
+set.seed(315)
+
+# Updates ebay dataset to include a rev_ratio variable
+ebay = ebay |>
+  mutate(rev_ratio = rev_after/rev_before)
+
+
+# Creates and displays the distribution of the differences in mean revenue ratios by control group and treatment group from 10000 bootstrapped samples
+boot_ebay = do(10000) * diffmean(rev_ratio ~ adwords_pause, data = resample(ebay))
+ggplot(boot_ebay) + geom_histogram(aes(x = diffmean), color = "black") +
+      labs(x = "Diffmean",
+          y = "Count",
+          title = 'Distribution of Difference in Mean Revenue Ratios \n(Revenue Before / Revenue After) by Control and Treatment Group \nFrom Bootstrapped Samples')
+
+# Calculates the confidence interval from the 10000 bootstrapped samples above
+confint(boot_ebay, level = 0.95)
+
+```
+
+
+**The question** I am trying to answer is the following: is the revenue ratio (revenue after / revenue before) the same in the treatment and control groups, or does the data favor the idea that paid search advertising on Google creates extra revenue for eBay?
+
+**The approach** that I used to answer this question is the bootstrap method. I created a new variable in the `ebay` dataset that indicates the revenue ratio. From there, I created 10000 bootstrapped samples, with the difference in the mean revenue ratio by control group and treatment group calculated for each sample. I then plotted these 10000 samples in the histogram seen above and calculated the 95% confidence interval (also seen above).
+
+**The results** that came out of my approach were the histogram and the 95% confidence interval. The histogram allows for the distribution of the `diffmean` from the 10000 bootstrapped samples to be visualized, while the confidence interval provides us with a crucial range of values. Namely, the confidence interval allows us to say with 95% confidence that the average difference in mean revenue ratios between the control group and treatment group is somewhere between -0.0907 and -0.0122.
+
+**The conclusion** that can be drawn from this information is that the mean revenue ratio appears to be consistently higher in the control group than the treatment group. Because the 95% confidence interval includes only a range of negative values, the control group consistently has a higher mean revenue ratio than the treatment group. Thus, the data seems to support the idea that paid search advertising on Google creates extra revenue for eBay.
